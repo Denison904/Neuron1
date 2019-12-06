@@ -7,10 +7,10 @@ struct Data
 //	int  **fruit;
 	//int x, y;
 	double* rr;
-	//double* predict;
+	double* predict;
 	double* input;
 	Data();
-	Data(double *input, double *rr);
+	Data(double *input,double *predict, double *rr);
 
 };
 

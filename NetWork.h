@@ -4,6 +4,7 @@
 #include "Game.h"
 #include "FruitData.h"
 
+
 class NetWork
 {
 public:
@@ -23,7 +24,7 @@ public:
 	void Start();
 	//void Enter();
 	void Draw(int i);
-	void BookLearning( double *rr);
+	void BookLearning( double *rr, double *predict);
 	int InputRR();
 	double dif(double x);
 	~NetWork() {};

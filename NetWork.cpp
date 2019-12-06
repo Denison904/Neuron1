@@ -23,7 +23,7 @@ NetWork::NetWork() {
 	
 	cout << "Enter number of snake \n";
 	cin >> population;
-	game =new Game[population];
+	game =new Game[population+1];
 	for (int i = 0; i < population; i++)
 	{
 		game[i] = Game();
@@ -35,13 +35,13 @@ NetWork::NetWork() {
 		
 		for (int j = 0; j < size[i]; j++)
 		{
-			neuron[i][j].w0 = (rand() % int(2/h) - int(1/h)) * h;
+			neuron[i][j].w0 = (rand() % int(2/h) - 1/h) * h;
 			if (i > 0) {
 				neuron[i][j].weights = new double[size[i - 1]];	
 				neuron[i][j].error = 0;
 				for (int k = 0; k < size[i - 1]; k++)
 				{
-					neuron[i][j].weights[k] = (rand() % int(2 / h) - int(1 / h)) * h;
+					neuron[i][j].weights[k] = (rand() % int(2 / h) - 1 / h) * h;
 				}
 			}
 		}
@@ -216,6 +216,35 @@ void NetWork::Start() {
 		} 
 		stapAlive[i] = j-1;
 	}
+	for (int i = 0; i < stapAlive[0]; i++)
+	{
+		
+		BookLearning(data[0][i].rr, data[0][i].predict);
+		for (int i = 0; i < size[0]; i++)
+		{
+			neuron[0][i].value = data[0][i].input[i];
+		}
+		ForwardFeed();
+		double testRR[4];
+		for (int i = 0; i < 4; i++)
+		{
+			testRR[i] = neuron[Layer - 1][i].value;
+		}
+		cout << "Delta = " << delta(data[0][i].input, testRR) << endl;
+	}
+
+	
+	while (game[population].getAlive())
+	{
+		char  a;
+		Sensor(population);
+		ForwardFeed();
+		
+		Draw(population);
+		game[population].Input(max());
+		game[population].Logic();
+		a = _getch();
+	}
 	char contin ='y';
 	int iter=0;
 	double** tmp;
@@ -243,7 +272,7 @@ void NetWork::Start() {
 				}
 				tmp[i][j] = delta(tmpOutput, data[i][j].rr);
 				//BackPropogation(rr);
-				BookLearning(rr);
+				//BookLearning();
 				delete[] tmpOutput;
 			}
 		}
@@ -375,14 +404,19 @@ int NetWork::InputRR() {
 void NetWork::Save(int i, int j) {
 	double* tmpI;
 	tmpI = new double[size[0]];
-
+	double tmpO[4];
+	for (int i = 0; i < 4; i++)
+	{
+		tmpI[i] = neuron[Layer - 1][i].value;
+	}
 
 	for (int i = 0; i < size[0]; i++)
 	{
 		tmpI[i] = neuron[0][i].value;
 	}
 
-	data[i][j] = Data(tmpI, rr);
+
+	data[i][j] = Data(tmpI,tmpO , rr);
 	delete[] tmpI;
 }
 
@@ -417,11 +451,11 @@ double NetWork::delta(double *output, double *rr) {
 	return max;
 }
 
-void NetWork::BookLearning(double *rr) {
+void NetWork::BookLearning(double *rr, double *predict) {
 	
 	for (int i = 0; i < size[Layer-1]; i++)
 	{
-		neuron[Layer - 1][i].error += (neuron[Layer - 1][i].value - rr[i]);
+		neuron[Layer - 1][i].error -= pow(predict[i] - rr[i],2);
 	}
 	for (int i = 0; i < size[Layer-1]; i++)
 	{
