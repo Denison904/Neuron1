@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <fstream>
+#include <ctime>
 using namespace std;
 
 const int high = 20;

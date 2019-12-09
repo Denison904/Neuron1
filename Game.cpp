@@ -16,7 +16,16 @@ Game::Game()
 		fruit[i][1] = rand() % (high - 2) + 1;
 	}
 }
-
+/*
+Game::~Game()
+{	
+	for (int i = 0; i < 10; i++)
+	{
+		delete[] fruit[i];
+	}
+	delete[] fruit;
+//	delete snake;
+}*/
 
 void Game::Input(int input) {
 	snake.setCourse(input);
@@ -97,7 +106,7 @@ void Game::Logic() {
 			tmpTail = snake.getTail();
 			snake.setTail(tmpTail[0].back(),tmpTail[0].back());
 			snake.setBody();
-	
+			
 			while (CheckTail(fruit[i][0], fruit[i][1]) || (fruit[i][0] == snake.getX() && fruit[i][1] == snake.getY()))
 			{
 				fruit[i][0] = rand() % (width - 2) + 1;
@@ -112,21 +121,21 @@ void Game::Logic() {
 	}
 	
 
-	if (snake.getX() == 0 || snake.getX() == width - 1 || snake.getY() == 0 || snake.getY() == high - 1) {
+	if (snake.getX() <= 0 || snake.getX() >= width - 1 || snake.getY() <= 0 || snake.getY() >= high - 1) {
 		snake.setAlive();
-		system("cls");
-		cout << "GAME OVER 1!\nSOURSE = " << getSource() << "\nIteration = " << stap << endl;
+	//	system("cls");
+		//cout << "GAME OVER 1!\nSOURSE = " << getSource() << "\nIteration = " << stap << endl;
 
 
 	}
 	else if (CheckTail(snake.getX(), snake.getY()))
 	{
 		snake.setAlive();
-		system("cls");
-		cout << "GAME OVER! 2\nSOURCE = " << getSource() << "\nIteration = " << stap << endl;
+		//system("cls");
+		//cout << "GAME OVER! 2\nSOURCE = " << getSource() << "\nIteration = " << stap << endl;
 	}
 
-	if (stap == stop)
+	if (stap >= stop)
 	{
 		snake.setAlive();
 	}
@@ -190,4 +199,20 @@ Game::Game(int **fruit) {
 
 bool Game::getAlive() {
 	return snake.getAlive();
+}
+
+void Game::setAlive() {
+	//snake.setAlive();
+	snake = Snake();
+	for (int i = 0; i < 10; i++)
+	{
+		fruit[i][0] = rand() % (width - 2) + 1;
+		fruit[i][1] = rand() % (high - 2) + 1;
+		if (CheckTail(fruit[i][0], fruit[i][1])) {
+			i--;
+		}
+	}
+	stap = 0;
+	source = 0;
+	stop = 50;
 }

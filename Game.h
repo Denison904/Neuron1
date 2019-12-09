@@ -11,6 +11,7 @@ public:
 	//Game(int radius);
 	Game();
 	Game(int** fruit);
+//	~Game();
 	int getSource();
 	bool CheckTail(int x, int y);
 	bool CheckFruit(int x,int y);
@@ -21,6 +22,7 @@ public:
 //	bool CheckFruit(int x, int y);
 	bool CheckBorder(int x, int y);
 	bool getAlive();
+	void setAlive();
 private:
 	Snake snake;
 	int **fruit;

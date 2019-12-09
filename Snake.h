@@ -24,7 +24,7 @@ public:
 private:
 	int x, y;
 	//int Tailcoord[2];
-	vector<int> *Tail;
+	vector<int> Tail[2];
 	int course;
 	//int *vision;
 	bool Alive;

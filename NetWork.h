@@ -9,8 +9,8 @@ class NetWork
 {
 public:
 	double delta(double *output, double *rr);
-	double act(int x);
-	double Dact(int x);
+	double act(double x);
+	double Dact(double x);
 	NetWork();
 	NetWork(string filename);
 	int max();
@@ -32,15 +32,15 @@ private:
 	Neuron **neuron;
 	Game* game;
 	Data **data;
+
 	int Layer;
 	double rr[4];
 	int* size;
 //	int number;
 	int population;
 	int radius;
-	DataFruit **Fruit;
+//	DataFruit **Fruit;
 	int *stapAlive;
 	double lr;
 	double h;
 };
-

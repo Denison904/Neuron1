@@ -3,8 +3,10 @@
 Snake::Snake() {
 	x = high / 2;
 	y = width / 2;
-	body = 4;
-	Tail = new vector<int>[2];
+	body = 3;
+	Tail[0].clear();
+	Tail[1].clear();
+//	Tail = new vector<int>[2];
 	for (int i = 0; i < body; i++)
 	{
 		//int tmp[2] = { x + i + 1,y };
@@ -15,6 +17,7 @@ Snake::Snake() {
 	Alive = true;
 	
 }
+
 
 void Snake::setCourse(int course) {
 	this->course = course;

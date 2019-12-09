@@ -10,7 +10,7 @@ NetWork::NetWork() {
 	cin >> Layer;
 	size= new int[Layer];
 	
-
+	srand(time_t(NULL));
 	size[0] = pow(radius*2+1,2)-1;
 	
 	for (int i = 1; i < Layer-1; i++)
@@ -18,33 +18,16 @@ NetWork::NetWork() {
 		cout << "Enter size " << i << " layer\n";
 		cin >> size[i];
 	}
+	
 
 	size[Layer - 1] = 4;
 	
 	cout << "Enter number of snake \n";
 	cin >> population;
-	game =new Game[population+1];
+	game =new Game[population+2];
 	for (int i = 0; i < population; i++)
 	{
 		game[i] = Game();
-	}
-	neuron = new Neuron * [Layer];
-	for (int  i = 0; i < Layer; i++)
-	{
-		neuron[i] = new Neuron[size[i]];
-		
-		for (int j = 0; j < size[i]; j++)
-		{
-			neuron[i][j].w0 = (rand() % int(2/h) - 1/h) * h;
-			if (i > 0) {
-				neuron[i][j].weights = new double[size[i - 1]];	
-				neuron[i][j].error = 0;
-				for (int k = 0; k < size[i - 1]; k++)
-				{
-					neuron[i][j].weights[k] = (rand() % int(2 / h) - 1 / h) * h;
-				}
-			}
-		}
 	}
 
 	data = new Data*[population];
@@ -60,6 +43,60 @@ NetWork::NetWork() {
 	//lr = 0.1;
 	cout << "Enter step:\n";
 	cin >> h;
+	
+	neuron = new Neuron * [Layer];
+	for (int  i = 0; i < Layer; i++)
+	{
+		neuron[i] = new Neuron[size[i]];
+		
+		for (int j = 0; j < size[i]; j++)
+		{
+			neuron[i][j].w0 = (rand() % int(2.0/h))* h - 1;
+			if (i > 0) {
+				neuron[i][j].weights = new double[size[i - 1]];	
+				neuron[i][j].error = 0;
+				for (int k = 0; k < size[i - 1]; k++)
+				{
+					neuron[i][j].weights[k] = (rand() %int(2.0/h))*h - 1 ;
+				}
+			}
+		}
+	}
+	Start();
+}
+
+NetWork::NetWork(string filename) {
+	fstream f;
+	f.open(filename);
+	if (!f.is_open())
+	{
+		cout << "File isn't open!" << endl;
+		return;
+	}
+	f>>Layer;
+	size = new int[Layer];
+	for (int i = 0; i <Layer ; i++)
+	{
+		f >> size[i];
+	}
+	neuron = new Neuron *[Layer];
+	for (int i = 0; i < Layer; i++)
+	{
+		neuron[i] = new Neuron[size[i]];
+		for (int j = 0; j < size[i]; j++)
+		{
+			if (i>0)
+			{
+				f >> neuron[i][j].w0;
+				neuron[i][j].weights = new double[size[i - 1]];
+				for (int k = 0; k < size[i-1]; k++)
+				{
+					f >> neuron[i][j].weights[k];
+				}
+			}
+		}
+	}
+	Start();
 }
 
 void NetWork::Sensor(int number) {
@@ -76,7 +113,7 @@ void NetWork::Sensor(int number) {
 	{
 		for (int j = 0; j < 2*radius+1; j++)
 		{
-			if (i != radius || j != radius) {
+			if ((i != radius || j!=radius)) {
 				if (game[number].CheckBorder(coor[0] + j, coor[1] + i)) 
 				{
 					neuron[0][k++].value = -1;
@@ -116,16 +153,16 @@ void NetWork::ForwardFeed() {
 
 
 
-double NetWork::act(int x) {
+double NetWork::act(double x) {
 #ifdef sigm
-	return 2.0 / (1 + exp(-x)) - 1;
+	return 2.0 / (1 + exp(-x)) -1;
 #endif // sigm
 #ifdef tanh
 	return tanh(x);
 #endif 
 }
 
-double NetWork::Dact(int x) {
+double NetWork::Dact(double x) {
 #ifdef sigm
 	return 2.0* act(x) * (1.0 - act(x));
 #endif // 
@@ -145,6 +182,11 @@ int NetWork::max() {
 		}
 	}
 	return index;
+	if (neuron[Layer - 1][0].value >= 0.0 && neuron[Layer - 1][0].value <= 0.25) return 0;
+	if (neuron[Layer - 1][0].value > 0.25 && neuron[Layer - 1][0].value <= 0.25*2) return 1;
+	if (neuron[Layer - 1][0].value > 0.25*2 && neuron[Layer - 1][0].value <= 0.25*3) return 2;
+	if (neuron[Layer - 1][0].value > 0.25*3 && neuron[Layer - 1][0].value <= 1) return 3;
+
 }
 
 void NetWork::BackPropogation( double *rr ) {
@@ -200,6 +242,7 @@ void NetWork::BackPropogation( double *rr ) {
 
 
 void NetWork::Start() {
+	saveWeights();
 	for (int i = 0; i < population; i++)
 	{
 		int j = 0;
@@ -216,6 +259,7 @@ void NetWork::Start() {
 		} 
 		stapAlive[i] = j-1;
 	}
+	/*
 	for (int i = 0; i < stapAlive[0]; i++)
 	{
 		
@@ -230,9 +274,11 @@ void NetWork::Start() {
 		{
 			testRR[i] = neuron[Layer - 1][i].value;
 		}
-		cout << "Delta = " << delta(data[0][i].input, testRR) << endl;
+		cout << "Delta = " << delta(data[0][i].rr, testRR) << endl;
 	}
-
+	saveWeights();
+	char a;
+	cin >> a;
 	
 	while (game[population].getAlive())
 	{
@@ -241,10 +287,11 @@ void NetWork::Start() {
 		ForwardFeed();
 		
 		Draw(population);
+		a = _getch();
 		game[population].Input(max());
 		game[population].Logic();
-		a = _getch();
-	}
+		
+	}*/
 	char contin ='y';
 	int iter=0;
 	double** tmp;
@@ -271,11 +318,12 @@ void NetWork::Start() {
 					tmpOutput[i] = neuron[Layer - 1][i].value;
 				}
 				tmp[i][j] = delta(tmpOutput, data[i][j].rr);
-				//BackPropogation(rr);
+				BackPropogation(rr);
 				//BookLearning();
 				delete[] tmpOutput;
 			}
 		}
+		lr = lr / 2;
 		double m = 0;
 		for (int i = 0; i < population; i++)
 		{
@@ -285,8 +333,22 @@ void NetWork::Start() {
 					m = tmp[i][j];
 			}
 		}
-		if (iter%100 == 0)
+		if (iter%10 == 0)
 		{
+			game[population] = Game();
+			int j = 0;
+			while (game[population].getAlive())
+			{
+				Sensor(population);
+				ForwardFeed();
+				Draw(population);
+				game[population].Input(max());
+				game[population].Logic();
+
+				j++;
+			}
+			stapAlive[population] = j - 1;
+
 			cout << "Delta:\t" << m << endl;
 			cout << "iter:\t" << iter << endl;
 			cout << "Continue?\n";
@@ -295,6 +357,18 @@ void NetWork::Start() {
 		iter++;
 	} while (contin == 'y');
 
+
+	while (game[population+1].getAlive())
+	{
+		char  a;
+		Sensor(population+1);
+		ForwardFeed();
+
+		Draw(population+1);
+		game[population+1].Input(max());
+		game[population+1].Logic();
+		a = _getch();
+	}
 
 
 	cout << "Do you want to save weighst?(y/n)";
@@ -318,14 +392,14 @@ void NetWork::Draw(int n) {
 	int k = 0;
 	system("cls");
 	game[n].Draw();
-	for (int i = 0; i < 2*radius+1; i++)
+	for (int i = -radius; i <= radius; i++)
 	{
-		for (int j = 0; j < 2*radius+1; j++)
+		for (int j = -radius; j <= radius; j++)
 		{
-			if (i == radius && j == radius)
-				cout << "\t";
+			if ((i != 0 || j != 0))
+				cout << neuron[0][k++].value<<"\t";
 			else
-				cout << neuron[0][k++].value << "\t";
+				cout << "\t\t";
 		}
 		cout << endl;
 	}
@@ -333,6 +407,16 @@ void NetWork::Draw(int n) {
 	for (int i = 0; i < size[Layer-1]; i++)
 	{
 		cout<<neuron[Layer - 1][i].value<<"\t";
+	}
+	cout << endl;
+	for (int i = 0; i < size[Layer-1]; i++)
+	{	
+		cout << neuron[Layer - 1][i].w0;
+		for (int j = 0; j < size[Layer-2]; j++)
+		{
+			cout<<neuron[Layer - 1][i].weights[j]<<"\t";
+		}
+		cout << "\n";
 	}
 	
 }
@@ -345,6 +429,8 @@ int NetWork::InputRR() {
 	case 'A':case 'a':
 		for (int i = 0; i < 4; i++)
 		{
+			
+			
 			if (i == 0) {
 				rr[i] = 1;
 			}
@@ -354,6 +440,7 @@ int NetWork::InputRR() {
 			}
 			
 		}
+		//rr[0] = 0.125;
 		return 0;
 		break;
 	case 'W':case 'w':
@@ -367,6 +454,7 @@ int NetWork::InputRR() {
 				rr[i] = 0;
 			}
 		}
+		//rr[0] = 0.125*3;
 		return 1;
 		break;
 	case 'D':case 'd':
@@ -380,6 +468,7 @@ int NetWork::InputRR() {
 				rr[i] = 0;
 			}
 		}
+		//rr[0] = 0.125*5;
 		return 2;
 		break;
 	case 'S':case 's':
@@ -393,6 +482,7 @@ int NetWork::InputRR() {
 				rr[i] = 0;
 			}
 		}
+		//rr[0] = 0.125*7;
 		return 3;
 		break;
 	default:
@@ -426,12 +516,19 @@ void NetWork::saveWeights() {
 	cin >> filename;
 	ofstream f(filename);
 
+	f << Layer<<"\n";
+
+	for (int i = 0; i < Layer; i++)
+	{
+		f << size[i] << "\n";
+	}
+
 	for (int i = 1; i < Layer; i++)
 	{
 		for (int j = 0; j < size[i]; j++)
 		{
 			f << neuron[i][j].w0<<" ";
-			for (int k = 0; k < size[i-1]; k++)
+			for (int k = 0;  k < size[i-1]; k++)
 			{
 				f << neuron[i][j].weights[k]<<" ";
 			}
@@ -455,7 +552,7 @@ void NetWork::BookLearning(double *rr, double *predict) {
 	
 	for (int i = 0; i < size[Layer-1]; i++)
 	{
-		neuron[Layer - 1][i].error -= pow(predict[i] - rr[i],2);
+		neuron[Layer - 1][i].error = pow(predict[i] - rr[i],2);
 	}
 	for (int i = 0; i < size[Layer-1]; i++)
 	{
@@ -464,7 +561,8 @@ void NetWork::BookLearning(double *rr, double *predict) {
 			neuron[Layer - 1][i].weights[j] -= lr*dif(neuron[Layer - 1][i].error);
 
 		}
-		neuron[Layer - 1][i].w0 -= dif(neuron[Layer - 1][i].error);
+		//neuron[Layer - 1][i].w0 -= dif(neuron[Layer - 1][i].error);
+		neuron[Layer - 1][i].w0 = 0;
 	}
 	
 }
