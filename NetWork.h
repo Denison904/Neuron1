@@ -15,7 +15,7 @@ public:
 	NetWork(string filename);
 	int max();
 	double **trans(double );
-	void BackPropogation( double* rr);
+	void BackPropogation( double rr);
 	void ForwardFeed();
 	//void GA();
 	void Save(int i, int j);
@@ -25,22 +25,23 @@ public:
 	//void Enter();
 	void Draw(int i);
 	void BookLearning( double *rr, double *predict);
-	int InputRR();
+	int InputRR(int  i);
 	double dif(double x);
+	double norma(double*** dw, double ***w);
 	~NetWork() {};
 private:
-	Neuron **neuron;
-	Game* game;
-	Data **data;
-
+	Game *game;
+	double** value;
+	double*** weights;
+	double** w0;
 	int Layer;
-	double rr[4];
 	int* size;
-//	int number;
-	int population;
 	int radius;
-//	DataFruit **Fruit;
-	int *stapAlive;
 	double lr;
 	double h;
+	double*** dw;
+	double** dw0;
+	double **save;
+	double* rr;
+
 };

@@ -8,6 +8,7 @@ class Snake
 {
 public:
 	Snake();
+	Snake(int body);
 	void setCourse(int course);
 	bool getAlive();
 	int getX();

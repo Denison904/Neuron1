@@ -18,6 +18,22 @@ Snake::Snake() {
 	
 }
 
+Snake::Snake(int body) {
+	x = high / 2;
+	y = width / 2;
+	this->body = body;
+	Tail[0].clear();
+	Tail[1].clear();
+	//	Tail = new vector<int>[2];
+	for (int i = 0; i < body; i++)
+	{
+		//int tmp[2] = { x + i + 1,y };
+		Tail[0].push_back(x + i + 1);
+		Tail[1].push_back(y);
+	}
+	course = 0;
+	Alive = true;
+}
 
 void Snake::setCourse(int course) {
 	this->course = course;

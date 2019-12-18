@@ -12,7 +12,6 @@ class GA
 public:
 	GA();
 	double act(double x);
-	//template<typename T1, typename T2>
 	void crooss(int a, int b );
 	void Mutation();
 	void ForwardFeed(int pop);
@@ -24,6 +23,8 @@ public:
 	int max();
 	void StartDraw(int i);
 	void StartNoDraw(int i);
+	void Save();
+	void Save(string filename);
 private:
 	int generation;
 	Game *game;
@@ -35,7 +36,13 @@ private:
 	int population;
 	double*** tmpv;
 	Game tmp;
-	//vector<int> stapAlive;
 	int np;
+	double**** dw;
+	int maxStap = 0;
+	int maxSource = 0;
+	double*** w0;
+	double*** dw0;
+	int N;
+	vector<double> sr;// средний шаг
 };
 

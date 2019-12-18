@@ -5,16 +5,20 @@ Game::Game()
 	stap = 0;
 	source = 0;
 	stop = 50;
-
-	fruit = new int* [10];
-	//snake = Snake();
-
-	for (int i = 0; i < 10; i++)
+	colFruit = high*width*0.25;
+	fruit = new int* [colFruit];	
+	snake = Snake();
+	srand(time(NULL));
+	for (int i = 0; i < colFruit; i++)
 	{
 		fruit[i] = new int[2];
 		fruit[i][0] = rand() % (width - 2) + 1;
 		fruit[i][1] = rand() % (high - 2) + 1;
+		if (CheckTail(fruit[i][0], fruit[i][1])) {
+			i--;
+		}
 	}
+	hungry = 20;
 }
 /*
 Game::~Game()
@@ -26,6 +30,16 @@ Game::~Game()
 	delete[] fruit;
 //	delete snake;
 }*/
+
+Game::Game(int** fruit, int body) {
+	stap = 0;
+	source = 0;
+	stop = 50;
+	this->fruit = fruit;
+	colFruit = 1;
+	snake = Snake(body);
+	hungry = 9;
+}
 
 void Game::Input(int input) {
 	snake.setCourse(input);
@@ -77,7 +91,7 @@ bool Game::CheckTail(int x, int y) {
 }
 
 bool Game::CheckFruit(int x, int y) {
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < colFruit; i++)
 	{
 		if (fruit[i][0] == x && fruit[i][1] == y)
 			return true;
@@ -99,9 +113,11 @@ void Game::Logic() {
 	}
 	bool eat = false;
 	
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < colFruit; i++)
 	{
 		if (snake.getX() == fruit[i][0] && snake.getY() == fruit[i][1]) {
+			source++;
+			hungry = 20;
 			vector<int> *tmpTail;
 			tmpTail = snake.getTail();
 			snake.setTail(tmpTail[0].back(),tmpTail[0].back());
@@ -137,9 +153,12 @@ void Game::Logic() {
 
 	if (stap >= stop)
 	{
-		snake.setAlive();
+	//	snake.setAlive();
 	}
+	if (hungry <= 0)
+		snake.setAlive();
 	stap++;
+	hungry--;
 }
 
 int Game::getSource() {
@@ -188,14 +207,6 @@ bool Game::CheckFruit(int x, int y) {
 	return false;
 }*/
 
-Game::Game(int **fruit) {
-	stap = 0;
-	source = 0;
-	stop = 50;
-
-
-	this->fruit = fruit;
-}
 
 bool Game::getAlive() {
 	return snake.getAlive();
@@ -203,9 +214,15 @@ bool Game::getAlive() {
 
 void Game::setAlive() {
 	//snake.setAlive();
+	
+	
 	snake = Snake();
-	for (int i = 0; i < 10; i++)
+	srand(time(NULL));
+	colFruit = high * width * 0.25;
+	fruit = new int* [colFruit];
+	for (int i = 0; i < colFruit; i++)
 	{
+		fruit[i] = new int[2];
 		fruit[i][0] = rand() % (width - 2) + 1;
 		fruit[i][1] = rand() % (high - 2) + 1;
 		if (CheckTail(fruit[i][0], fruit[i][1])) {
@@ -215,4 +232,6 @@ void Game::setAlive() {
 	stap = 0;
 	source = 0;
 	stop = 50;
+	hungry = 20;
+
 }
